@@ -1,0 +1,26 @@
+<?php
+// circ.install
+
+function circ_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("CREATE TABLE {circ_item_types} (
+          code varchar(32) NOT NULL default '',
+          display varchar(256) NOT NULL default '',
+          icon varchar(256) NOT NULL default '',
+          weight int signed NOT NULL default '0',
+          PRIMARY KEY (code)
+        ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+
+    break;
+  }
+}
+
+function circ_uninstall() {
+  db_query('DROP TABLE {circ_item_types}');
+  cache_clear_all('*', 'cache', TRUE);
+  cache_clear_all('*', 'cache_filter', TRUE);
+  cache_clear_all('*', 'cache_menu', TRUE);
+  cache_clear_all('*', 'cache_page', TRUE);
+}

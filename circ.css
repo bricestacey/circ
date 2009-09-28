@@ -1,0 +1,28 @@
+table {
+  width: 95%;
+  border: 1px solid #CCC;
+}
+table tbody tr td,
+table thead tr th {
+  padding: 0.5em;
+}
+
+/* this makes zebra stripes */
+table tbody tr.even {
+  background-color: #FFF;
+}
+
+table thead tr th {
+  text-align: left;
+}
+
+.item-status {
+  font-style: italic;
+}
+.item-title {
+  font-weight: bold;
+}
+
+td.cell-due-date {
+  white-space: nowrap;
+}

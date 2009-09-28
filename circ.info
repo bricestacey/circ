@@ -1,0 +1,5 @@
+; $Id$
+name = Circulation
+description = "Circulation stuff."
+package = Library
+dependencies = library
