@@ -70,6 +70,7 @@ function circ_menu() {
     'callback arguments' => array('circ_settings_form'),
     'access' => $admin_circ || $admin_library,
     'type' => MENU_DYNAMIC_ITEM,
+    'description' => t('Configure Circulation settings and item types.'),
   );
   $items[] = array(
     'path' => 'admin/library/circ/settings',
