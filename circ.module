@@ -595,8 +595,8 @@ function theme_circ_holds($items) {
     );
   }
 
-  $output .= '<h3>' . check_markpup(CIRC_REQUESTS_HEADING) . '</h3>';
-  $output .= '<p>' . check_markpup(CIRC_REQUESTS_DESC) . '</p>';
+  $output .= '<h3>' . check_markup(CIRC_REQUESTS_HEADING) . '</h3>';
+  $output .= '<p>' . check_markup(CIRC_REQUESTS_DESC) . '</p>';
   if (!empty($holds)) {
     $header = array('Type', 'Item', 'Not Needed After');
     $attributes = array('class' => 'holds');
