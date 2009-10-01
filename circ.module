@@ -1,5 +1,4 @@
 <?php
-
 function circ_init() {
   require_once('circ_itemtypes.inc');
   drupal_add_css(drupal_get_path('module', 'circ') . '/circ.css');
@@ -229,7 +228,7 @@ function circ_settings_form() {
   );
   $form['charges']['courtesy']['courtesy_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_COURTESY_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_COURTESY_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_COURTESY_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_COURTESY_STATUS) . '</div></div></div>',
   );
 
   // Overdue Settings
@@ -252,7 +251,7 @@ function circ_settings_form() {
   );
   $form['charges']['overdue']['overdue_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_OVERDUE_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_OVERDUE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_OVERDUE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_OVERDUE_STATUS) . '</div></div></div>',
   );
 
 
@@ -283,7 +282,7 @@ function circ_settings_form() {
   );
   $form['charges']['lost']['lost_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_LOST_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_LOST_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_LOST_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_LOST_STATUS) . '</div></div></div>',
   );
 
   
@@ -307,7 +306,7 @@ function circ_settings_form() {
   );
   $form['charges']['recall']['recall_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_RECALL_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_RECALL_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_RECALL_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_RECALL_STATUS) . '</div></div></div>',
   );
 
 
@@ -354,7 +353,7 @@ function circ_settings_form() {
   );
   $form['requests']['available']['available_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_AVAILABLE_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_AVAILABLE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_AVAILABLE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_AVAILABLE_STATUS) . '</div></div></div>',
   );
 
 
@@ -378,7 +377,7 @@ function circ_settings_form() {
   );
   $form['requests']['unavailable']['unavailable_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_UNAVAILABLE_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div><div class="item-status">' . check_markup(CIRC_UNAVAILABLE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_UNAVAILABLE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_UNAVAILABLE_STATUS) . '</div></div></div>',
   );
 
 
@@ -411,7 +410,7 @@ function circ_settings_form() {
   );
   $form['fines']['fines_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_FINES_COLOR . ';"><div class="item-title">' . check_markup($example) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_FINES_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div></div></div>',
   );
 
 
@@ -522,7 +521,7 @@ function theme_circ_charges($items) {
         ),
         array(
           'class' => 'cell-item',
-          'data' => '<div class="item-title">' . check_markup($item) . '</div><div class="item-status">' . check_markup($note) . '</div>',
+          'data' => '<div class="item-title">' . check_plain($item) . '</div><div class="item-status">' . check_plain($note) . '</div>',
         ),
         array(
           'class' => 'cell-due-date',
@@ -537,15 +536,15 @@ function theme_circ_charges($items) {
     );
   }
 
-  $output .= '<h3>' . check_markup(CIRC_CHARGES_HEADING) . '</h3>';
-  $output .= '<p>' . check_markup(CIRC_CHARGES_DESC) . '</p>';
+  $output .= '<h3>' . check_plain(CIRC_CHARGES_HEADING) . '</h3>';
+  $output .= check_markup(CIRC_CHARGES_DESC);
   $output .= '<p>' . l(theme('image', drupal_get_path('module', 'circ') . '/icons/icon_renew_all.png', 'Renew All Items', 'Renew All items'), 'user/' . $items['uid'] . '/circ/renewall', array(), NULL, NULL, FALSE, TRUE) . '</p>';
   if (!empty($charges)) {
     $header = array('Type', 'Item', 'Due Date', 'Renew');
     $attributes = array('class' => 'charges');
     $output .= theme('table', $header, $charges);
   } else {
-    $output .= '<p>' . check_markup(CIRC_CHARGES_EMPTY) . '</p>';
+    $output .= check_markup(CIRC_CHARGES_EMPTY);
   }
 
   return $output;
@@ -584,7 +583,7 @@ function theme_circ_holds($items) {
         ),
         array(
           'class' => 'cell-item',
-          'data' => '<div class="item-title">' . check_markup($item) . '</div><div class="item-status">' . check_markup($note) . '</div>',
+          'data' => '<div class="item-title">' . check_plain($item) . '</div><div class="item-status">' . check_plain($note) . '</div>',
         ),
         array(
           'class' => 'cell-due-date',
@@ -595,14 +594,14 @@ function theme_circ_holds($items) {
     );
   }
 
-  $output .= '<h3>' . check_markup(CIRC_REQUESTS_HEADING) . '</h3>';
-  $output .= '<p>' . check_markup(CIRC_REQUESTS_DESC) . '</p>';
+  $output .= '<h3>' . check_plain(CIRC_REQUESTS_HEADING) . '</h3>';
+  $output .= check_markup(CIRC_REQUESTS_DESC);
   if (!empty($holds)) {
     $header = array('Type', 'Item', 'Not Needed After');
     $attributes = array('class' => 'holds');
     $output .= theme('table', $header, $holds);
   } else {
-    $output .= '<p>' . check_markup(CIRC_REQUESTS_EMPTY) . '</p>';
+    $output .= check_markup(CIRC_REQUESTS_EMPTY);
   }
 
   return $output;
@@ -638,14 +637,14 @@ function theme_circ_fines($items) {
     );
   }
 
-  $output .= '<h3>' . check_markup(CIRC_FINES_HEADING) . '</h3>';
-  $output .= '<p>' . check_markup(CIRC_FINES_DESC) . '</p>';
+  $output .= '<h3>' . check_plain(CIRC_FINES_HEADING) . '</h3>';
+  $output .= check_markup(CIRC_FINES_DESC);
   if (!empty($fines)) {
     $header = array('Type', 'Item', 'Reason', 'Fine', 'Remaining Balance');
     $attributes = array('class' => 'fines');
     $output .= theme('table', $header, $fines, $attributes);
   } else {
-    $output .= '<p>' . check_markup(CIRC_FINES_EMPTY) . '</p>';
+    $output .= check_markup(CIRC_FINES_EMPTY);
   }
 
   return $output;
