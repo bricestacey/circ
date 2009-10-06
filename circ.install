@@ -12,49 +12,48 @@ function circ_install() {
           weight int signed NOT NULL default '0',
           PRIMARY KEY (code)
         ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-
     break;
   }
 
-  variable_set('circ_default_item_type_icon', ''));
-  variable_set('circ_date_format', 'd-M-y'));
+  variable_set('circ_default_item_type_icon', '');
+  variable_set('circ_date_format', 'd-M-y');
 
-  variable_set('circ_example_title', 'Hackers & painters : big ideas from the computer age'));
-  variable_set('circ_example_author', 'Paul Graham'));
+  variable_set('circ_example_title', 'Hackers & painters : big ideas from the computer age');
+  variable_set('circ_example_author', 'Paul Graham');
 
-  variable_set('circ_charges_desc', ''));
-  variable_set('circ_charges_empty', 'You have no checked out items.'));
+  variable_set('circ_charges_desc', '');
+  variable_set('circ_charges_empty', 'You have no checked out items.');
 
-  variable_set('circ_courtesy_interval', '3'));
-  variable_set('circ_courtesy_color', '#CCF'));
-  variable_set('circ_courtesy_status', 'Item is due soon. If you\'re done with the book, why not return it to avoid a fine?'));
+  variable_set('circ_courtesy_interval', '3');
+  variable_set('circ_courtesy_color', '#CCF');
+  variable_set('circ_courtesy_status', 'Item is due soon. If you\'re done with the book, why not return it to avoid a fine?');
 
-  variable_set('circ_recall_status', 'Item recalled. The due date has been modified. Please return as soon as posisble.'));
-  variable_set('circ_recall_color', '#C6C'));
+  variable_set('circ_recall_status', 'Item recalled. The due date has been modified. Please return as soon as posisble.');
+  variable_set('circ_recall_color', '#C6C');
 
-  variable_set('circ_lost_interval', '30'));
-  variable_set('circ_lost_color', '#FCF'));
-  variable_set('circ_lost_status', 'Item lost. Please return this item or pay the fine.'));
+  variable_set('circ_lost_interval', '30');
+  variable_set('circ_lost_color', '#FCF');
+  variable_set('circ_lost_status', 'Item lost. Please return this item or pay the fine.');
 
-  variable_set('circ_overdue_color', '#FCC'));
-  variable_set('circ_overdue_status', 'Item overdue. Please return this item.'));
+  variable_set('circ_overdue_color', '#FCC');
+  variable_set('circ_overdue_status', 'Item overdue. Please return this item.');
 
-  variable_set('circ_requests_desc', ''));
-  variable_set('circ_requests_empty', 'You have not requested any items.'));
+  variable_set('circ_requests_desc', '');
+  variable_set('circ_requests_empty', 'You have not requested any items.');
 
-  variable_set('circ_available_color', '#CFC'));
-  variable_set('circ_available_status', 'Item available.'));
+  variable_set('circ_available_color', '#CFC');
+  variable_set('circ_available_status', 'Item available.');
 
-  variable_set('circ_unavailable_color', '#CFC'));
-  variable_set('circ_unavailable_status', 'Item unavailable. You will be notified when it becomes available.'));
+  variable_set('circ_unavailable_color', '#CFC');
+  variable_set('circ_unavailable_status', 'Item unavailable. You will be notified when it becomes available.');
 
-  variable_set('circ_charges_heading', 'Checked Out Items'));
-  variable_set('circ_requests_heading', 'Outstanding Requests'));
-  variable_set('circ_fines_heading', 'Fines and Fees'));
+  variable_set('circ_charges_heading', 'Checked Out Items');
+  variable_set('circ_requests_heading', 'Outstanding Requests');
+  variable_set('circ_fines_heading', 'Fines and Fees');
 
-  variable_set('circ_fines_desc', ''));
-  variable_set('circ_fines_empty', 'You have no fines and fees.'));
-  variable_set('circ_fines_color', '#FCC'));
+  variable_set('circ_fines_desc', '');
+  variable_set('circ_fines_empty', 'You have no fines and fees.');
+  variable_set('circ_fines_color', '#FCC');
 }
 
 function circ_uninstall() {
