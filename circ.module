@@ -1,147 +1,107 @@
 <?php
 function circ_init() {
-  require_once('circ_itemtypes.inc');
   drupal_add_css(drupal_get_path('module', 'circ') . '/circ.css');
-
-  define('CIRC_DEFAULT_ICON',       variable_get('circ_default_item_type_icon', ''));
-
-  define('CIRC_DATE_FORMAT',        variable_get('circ_date_format', 'd-M-y'));
-
-  define('CIRC_EXAMPLE_TITLE',      variable_get('circ_example_title', 'Hackers & painters : big ideas from the computer age'));
-  define('CIRC_EXAMPLE_AUTHOR',     variable_get('circ_example_author', 'Paul Graham'));
-
-  define('CIRC_CHARGES_DESC',       variable_get('circ_charges_desc', ''));
-  define('CIRC_CHARGES_EMPTY',      variable_get('circ_charges_empty', 'You have no checked out items.'));
-
-  define('CIRC_COURTESY_INTERVAL',  variable_get('circ_courtesy_interval', '3'));
-  define('CIRC_COURTESY_COLOR',     variable_get('circ_courtesy_color', '#CCF'));
-  define('CIRC_COURTESY_STATUS',    variable_get('circ_courtesy_status', 'Item is due soon. If you\'re done with the book, why not return it to avoid a fine?'));
-
-  define('CIRC_RECALL_STATUS',      variable_get('circ_recall_status', 'Item recalled. The due date has been modified. Please return as soon as posisble.'));
-  define('CIRC_RECALL_COLOR',       variable_get('circ_recall_color', '#C6C'));
-
-  define('CIRC_LOST_INTERVAL',      variable_get('circ_lost_interval', '30'));
-  define('CIRC_LOST_COLOR',         variable_get('circ_lost_color', '#FCF'));
-  define('CIRC_LOST_STATUS',        variable_get('circ_lost_status', 'Item lost. Please return this item or pay the fine.'));
-
-  define('CIRC_OVERDUE_COLOR',      variable_get('circ_overdue_color', '#FCC'));
-  define('CIRC_OVERDUE_STATUS',     variable_get('circ_overdue_status', 'Item overdue. Please return this item.'));
-
-  define('CIRC_REQUESTS_DESC',      variable_get('circ_requests_desc', ''));
-  define('CIRC_REQUESTS_EMPTY',     variable_get('circ_requests_empty', 'You have not requested any items.'));
-
-  define('CIRC_AVAILABLE_COLOR',    variable_get('circ_available_color', '#CFC'));
-  define('CIRC_AVAILABLE_STATUS',   variable_get('circ_available_status', 'Item available.'));
-
-  define('CIRC_UNAVAILABLE_COLOR',    variable_get('circ_unavailable_color', '#CFC'));
-  define('CIRC_UNAVAILABLE_STATUS',   variable_get('circ_unavailable_status', 'Item unavailable. You will be notified when it becomes available.'));
-
-  define('CIRC_CHARGES_HEADING',   variable_get('circ_charges_heading', 'Checked Out Items'));
-  define('CIRC_REQUESTS_HEADING',  variable_get('circ_requests_heading', 'Outstanding Requests'));
-  define('CIRC_FINES_HEADING',      variable_get('circ_fines_heading', 'Fines and Fees'));
-
-  define('CIRC_FINES_DESC',         variable_get('circ_fines_desc', ''));
-  define('CIRC_FINES_EMPTY',        variable_get('circ_fines_empty', 'You have no fines and fees.'));
-  define('CIRC_FINES_COLOR',        variable_get('circ_fines_color', '#FCC'));
 }
 
 function circ_perm() {
   return array('access circ account', 'administer circ');
 }
 
-function circ_menu() {
+function circ_menu($may_cache) {
   $admin_library = user_access('administer library');
   $admin_circ = user_access('administer circ');
   global $user;
 
   $items = array();
-  $items[] = array(
-    'path' => 'user/' . arg(1) . '/circ',
-    'title' => t('Library Account'),
-    'callback' => 'circ_account',
-    'access' => ($user->uid == arg(1) || $admin_circ) ? true : false,
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ',
-    'title' => t('Circulation Settings'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_settings_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_DYNAMIC_ITEM,
-    'description' => t('Configure Circulation settings and item types.'),
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/settings',
-    'title' => t('Circulation Settings'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_settings_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -1,
-  );
-
-  // Item Types
-  $items[] = array(
+  if ($may_cache) {
+    $items[] = array(
+      'path' => 'user/' . arg(1) . '/circ',
+      'title' => t('Library account'),
+      'callback' => 'circ_account',
+      'access' => ($user->uid == arg(1) || $admin_circ) ? true : false,
+      'type' => MENU_LOCAL_TASK,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ',
+      'title' => t('Circulation settings'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_settings_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_DYNAMIC_ITEM,
+      'description' => t('Configure circulation settings and item types.'),
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/settings',
+      'title' => t('Circulation settings'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_settings_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -1,
+    );
+  
+    // Item Types
+    $items[] = array(
     'path' => 'admin/library/circ/itemtypes',
-    'title' => t('Item Types'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_itemtypes_overview_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 0,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/itemtypes/list',
-    'title' => t('List'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_itemtypes_overview_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -5,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/itemtypes/settings',
-    'title' => t('Settings'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_itemtypes_settings_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -4,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/itemtypes/add',
-    'title' => t('Add Item Type'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_add_item_type_form'),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -3,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/itemtypes/edit/' . arg(5),
-    'title' => t('Edit Item Type'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_add_item_type_form', arg(5)),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_CALLBACK,
-    'weight' => 0,
-  );
-  $items[] = array(
-    'path' => 'admin/library/circ/itemtypes/delete/' . arg(5),
-    'title' => t('Delete item type'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('circ_item_type_confirm_delete', arg(5)),
-    'access' => $admin_circ || $admin_library,
-    'type' => MENU_CALLBACK,
-  );
-
+      'title' => t('Item types'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_itemtypes_overview_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 0,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/itemtypes/list',
+      'title' => t('List'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_itemtypes_overview_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -5,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/itemtypes/settings',
+      'title' => t('Settings'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_itemtypes_settings_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -4,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/itemtypes/add',
+      'title' => t('Add item type'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_add_item_type_form'),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -3,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/itemtypes/edit/' . arg(5),
+      'title' => t('Edit item type'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_add_item_type_form', arg(5)),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_CALLBACK,
+      'weight' => 0,
+    );
+    $items[] = array(
+      'path' => 'admin/library/circ/itemtypes/delete/' . arg(5),
+      'title' => t('Delete item type'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('circ_item_type_confirm_delete', arg(5)),
+      'access' => $admin_circ || $admin_library,
+      'type' => MENU_CALLBACK,
+    );
+  }
+  
   return $items;
 }
 
 function circ_settings_form() {
-  $exampleTitle = CIRC_EXAMPLE_TITLE;
-  $exampleAuthor = CIRC_EXAMPLE_AUTHOR;
+  $exampleTitle = variable_get('circ_example_title', '');
+  $exampleAuthor = variable_get('circ_example_author', '');
   $example = $exampleTitle . ' / ' . $exampleAuthor;
   $options = array();
   for ($i = 1; $i <= 60; $i++) {
@@ -151,18 +111,18 @@ function circ_settings_form() {
   $form = array();
   $form['date'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Date Settings'),
+    '#title' => t('Date settings'),
     '#collapsible' => true,
   );
   $form['date']['date_format'] = array(
     '#type' => 'textfield',
-    '#title' => t('Custom Date Format'),
-    '#default_value' => CIRC_DATE_FORMAT,
-    '#description' => 'See PHP\'s <a href="http://www.php.net/date">date()</a> function for help creating a date format.<br>Your current date format is: ' . CIRC_DATE_FORMAT . '. Today\'s date looks like: ' . date(CIRC_DATE_FORMAT),
+    '#title' => t('Custom date format'),
+    '#default_value' => variable_get('circ_date_format', ''),
+    '#description' => t("See PHP's !linktodate function for help creating a date format.<br>Your current date format is: !format. Today\'s date looks like: !date", array('!format' => variable_get('circ_date_format', ''), '!date' => date(variable_get('circ_date_format', '')), '!linktodate' => '<a href="http://www.php.net/date">date()</a>')),
   );
   $form['example'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Example Item'),
+    '#title' => t('Example item'),
     '#description' => t('This example will be used to provide examples for the Circulation Module Settings.'),
     '#collapsible' => TRUE,
   );
@@ -180,244 +140,244 @@ function circ_settings_form() {
   // Charges
   $form['charges'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Charged Items Settings'),
+    '#title' => t('Charged items settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['charges']['charges_heading'] = array(
     '#type' => 'textfield',
-    '#title' => t('Charges Heading'),
-    '#default_value' => CIRC_CHARGES_HEADING,
+    '#title' => t('Charges heading'),
+    '#default_value' => variable_get('circ_charges_heading', ''),
   );
   $form['charges']['charges_desc'] = array(
     '#type' => 'textarea',
     '#title' => t('Paragraph'),
-    '#default_value' => CIRC_CHARGES_DESC,
+    '#default_value' => variable_get('circ_charges_desc', ''),
   );
   $form['charges']['charges_empty'] = array(
     '#type' => 'textarea',
-    '#title' => t('Empty Text'),
-    '#default_value' => CIRC_CHARGES_EMPTY,
+    '#title' => t('Empty text'),
+    '#default_value' => variable_get('circ_charges_empty', ''),
   );
 
 
   // Courtesy Settings
   $form['charges']['courtesy'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Courtesy Settings'),
+    '#title' => t('Courtesy settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['charges']['courtesy']['courtesy_interval'] = array(
     '#type' => 'select',
-    '#title' => t('Courtesy Notice Interval'),
-    '#default_value' => CIRC_COURTESY_INTERVAL,
+    '#title' => t('Courtesy notice interval'),
+    '#default_value' => variable_get('circ_courtesy_interval', '3'),
     '#description' => t('The number of days used to identify an item as near due.'),
     '#options' => $options,
   );
   $form['charges']['courtesy']['courtesy_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Courtesy Notice Color'),
-    '#default_value' => CIRC_COURTESY_COLOR,
+    '#title' => t('Courtesy notice color'),
+    '#default_value' => variable_get('circ_courtesy_color', '#CCF'),
   );
   $form['charges']['courtesy']['courtesy_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Courtesy Item Status'),
-    '#default_value' => CIRC_COURTESY_STATUS,
+    '#title' => t('Courtesy item status'),
+    '#default_value' => variable_get('circ_courtesy_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked courtesy.'),
   );
   $form['charges']['courtesy']['courtesy_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_COURTESY_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_COURTESY_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_courtesy_color', '#CCF') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_courtesy_status', '')) . '</div></div></div>',
   );
 
   // Overdue Settings
   $form['charges']['overdue'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Overdue Settings'),
+    '#title' => t('Overdue settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['charges']['overdue']['overdue_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Overdue Notice Color'),
-    '#default_value' => CIRC_OVERDUE_COLOR,
+    '#title' => t('Overdue notice color'),
+    '#default_value' => variable_get('circ_overdue_color', '#FCC'),
   );
   $form['charges']['overdue']['overdue_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Overdue Item Status'),
-    '#default_value' => CIRC_OVERDUE_STATUS,
+    '#title' => t('Overdue item status'),
+    '#default_value' => variable_get('circ_overdue_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked overdue.'),
   );
   $form['charges']['overdue']['overdue_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_OVERDUE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_OVERDUE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_overdue_color', '#FCC') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_overdue_status', '')) . '</div></div></div>',
   );
 
 
   // Lost Settings
   $form['charges']['lost'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Lost Settings'),
+    '#title' => t('Lost settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['charges']['lost']['lost_interval'] = array(
     '#type' => 'select',
-    '#title' => t('Lost Notice Interval'),
-    '#default_value' => CIRC_LOST_INTERVAL,
+    '#title' => t('Lost notice interval'),
+    '#default_value' => variable_get('circ_lost_interval', '30'),
     '#description' => t('The number of days used to identify an item as near due.'),
     '#options' => $options,
   );
   $form['charges']['lost']['lost_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Lost Notice Color'),
-    '#default_value' => CIRC_LOST_COLOR,
+    '#title' => t('Lost notice color'),
+    '#default_value' => variable_get('circ_lost_color', '#FCF'),
   );
   $form['charges']['lost']['lost_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Lost Item Status'),
-    '#default_value' => CIRC_LOST_STATUS,
+    '#title' => t('Lost item status'),
+    '#default_value' => variable_get('circ_lost_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked lost.'),
   );
   $form['charges']['lost']['lost_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_LOST_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_LOST_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_lost_color', '#FCF') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_lost_status', '')) . '</div></div></div>',
   );
 
   
   // Recall Settings
   $form['charges']['recall'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Recall Settings'),
+    '#title' => t('Recall settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['charges']['recall']['recall_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Recall Notice Color'),
-    '#default_value' => CIRC_RECALL_COLOR,
+    '#title' => t('Recall notice color'),
+    '#default_value' => variable_get('circ_recall_color', '#C6C'),
   );
   $form['charges']['recall']['recall_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Recall Item Status'),
-    '#default_value' => CIRC_RECALL_STATUS,
+    '#title' => t('Recall item status'),
+    '#default_value' => variable_get('circ_recall_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked recall.'),
   );
   $form['charges']['recall']['recall_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_RECALL_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_RECALL_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_recall_color', '#C6C') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_recall_status', '')) . '</div></div></div>',
   );
 
 
 
   $form['requests'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Requested Item Settings'),
+    '#title' => t('Requested item settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['requests']['requests_heading'] = array(
     '#type' => 'textfield',
-    '#title' => t('Requests Heading'),
-    '#default_value' => CIRC_REQUESTS_HEADING,
+    '#title' => t('Requests heading'),
+    '#default_value' => variable_get('circ_requests_heading', ''),
   );
   $form['requests']['requests_desc'] = array(
     '#type' => 'textarea',
     '#title' => t('Paragraph'),
-    '#default_value' => CIRC_REQUESTS_DESC,
+    '#default_value' => variable_get('circ_requests_desc', ''),
   );
   $form['requests']['requests_empty'] = array(
     '#type' => 'textarea',
-    '#title' => t('Empty Text'),
-    '#default_value' => CIRC_REQUESTS_EMPTY,
+    '#title' => t('Empty text'),
+    '#default_value' => variable_get('circ_requests_empty', ''),
   );
 
   // Available Hold Settings
   $form['requests']['available'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Available Settings'),
+    '#title' => t('Available settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['requests']['available']['available_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Available Notice Color'),
-    '#default_value' => CIRC_AVAILABLE_COLOR,
+    '#title' => t('Available notice color'),
+    '#default_value' => variable_get('circ_available_color', '#CFC'),
   );
   $form['requests']['available']['available_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Available Item Status'),
-    '#default_value' => CIRC_AVAILABLE_STATUS,
+    '#title' => t('Available item status'),
+    '#default_value' => variable_get('circ_available_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked available.'),
   );
   $form['requests']['available']['available_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_AVAILABLE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_AVAILABLE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_available_color', '#CFC') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_available_status', '')) . '</div></div></div>',
   );
 
 
   // Unavailable Hold Settings
   $form['requests']['unavailable'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Unavailable Settings'),
+    '#title' => t('Unavailable settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['requests']['unavailable']['unavailable_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Unavailable Notice Color'),
-    '#default_value' => CIRC_UNAVAILABLE_COLOR,
+    '#title' => t('Unavailable notice color'),
+    '#default_value' => variable_get('circ_unavailable_color', '#CFC'),
   );
   $form['requests']['unavailable']['unavailable_status'] = array(
     '#type' => 'textfield',
-    '#title' => t('Unavailable Item Status'),
-    '#default_value' => CIRC_UNAVAILABLE_STATUS,
+    '#title' => t('Unavailable item status'),
+    '#default_value' => variable_get('circ_unavailable_status', ''),
     '#description' => t('This is the status that will appear beneath the title and author of an item when an item is marked unavailable.'),
   );
   $form['requests']['unavailable']['unavailable_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_UNAVAILABLE_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(CIRC_UNAVAILABLE_STATUS) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_unavailable_color', '#CFC') . ';"><div class="item-title">' . check_plain($example) . '</div><div class="item-status">' . check_plain(variable_get('circ_unavailable_status', '')) . '</div></div></div>',
   );
 
 
   // Fines
   $form['fines'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Fine Settings'),
+    '#title' => t('Fine settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   $form['fines']['fines_heading'] = array(
     '#type' => 'textfield',
-    '#title' => t('Fines Heading'),
-    '#default_value' => CIRC_FINES_HEADING,
+    '#title' => t('Fines heading'),
+    '#default_value' => variable_get('circ_fines_heading', ''),
   );
   $form['fines']['fines_desc'] = array(
     '#type' => 'textarea',
     '#title' => t('Paragraph'),
-    '#default_value' => CIRC_FINES_DESC,
+    '#default_value' => variable_get('circ_fines_desc', ''),
   );
   $form['fines']['fines_empty'] = array(
     '#type' => 'textarea',
-    '#title' => t('Empty Text'),
-    '#default_value' => CIRC_FINES_EMPTY,
+    '#title' => t('Empty text'),
+    '#default_value' => variable_get('circ_fines_empty', ''),
   );
   $form['fines']['fines_color'] = array(
     '#type' => 'textfield',
-    '#title' => t('Fine Notice Color'),
-    '#default_value' => CIRC_FINES_COLOR,
+    '#title' => t('Fine notice color'),
+    '#default_value' => variable_get('circ_fines_color', '#FCC'),
   );
   $form['fines']['fines_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . CIRC_FINES_COLOR . ';"><div class="item-title">' . check_plain($example) . '</div></div></div>',
+    '#value' => '<div class="color-indicator"><strong>Example:</strong><div style="background-color: ' . variable_get('circ_fines_color', '#FCC') . ';"><div class="item-title">' . check_plain($example) . '</div></div></div>',
   );
 
 
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save Changes'),
+    '#value' => t('Save changes'),
   );
   return $form;
 }
@@ -490,19 +450,19 @@ function theme_circ_charges($items) {
     if ($charge['STATUS'] == 'recall') {
       // Recall
       $classes = 'recall';
-      $note = CIRC_RECALL_STATUS;
-    } else if ($due_date < $time && $due_date - $time < -60 * 60 * 24 * CIRC_LOST_INTERVAL) {
+      $note = variable_get('circ_recall_status', '');
+    } else if ($due_date < $time && $due_date - $time < -60 * 60 * 24 * variable_get('circ_lost_interval', '30')) {
       // Lost
       $classes = 'lost';
-      $note = CIRC_LOST_STATUS;
+      $note = variable_get('circ_lost_status', '');
     } else if ($due_date < $time) {
       // Overdue
       $classes = 'overdue';
-      $note = CIRC_OVERDUE_STATUS;
-    } else if ($due_date > $time && $due_date - $time < 60 * 60 * 24 * CIRC_COURTESY_INTERVAL) {
+      $note = variable_get('circ_overdue_status', '');
+    } else if ($due_date > $time && $due_date - $time < 60 * 60 * 24 * variable_get('circ_courtesy_interval', '3')) {
       // Courtesy 
       $classes = 'courtesy';
-      $note = CIRC_COURTESY_STATUS;
+      $note = variable_get('circ_courtesy_status', '');
     } else {
       $note = '';
       $classes = '';
@@ -525,7 +485,7 @@ function theme_circ_charges($items) {
         ),
         array(
           'class' => 'cell-due-date',
-          'data' => date(CIRC_DATE_FORMAT, $due_date),
+          'data' => date(variable_get('circ_date_format', ''), $due_date),
         ),
         array(
           'class' => 'cell-renew',
@@ -536,15 +496,15 @@ function theme_circ_charges($items) {
     );
   }
 
-  $output .= '<h3>' . check_plain(CIRC_CHARGES_HEADING) . '</h3>';
-  $output .= check_markup(CIRC_CHARGES_DESC);
+  $output .= '<h3>' . check_plain(variable_get('circ_charges_heading', '')) . '</h3>';
+  $output .= check_markup(variable_get('circ_charges_desc', ''));
   $output .= '<p>' . l(theme('image', drupal_get_path('module', 'circ') . '/icons/icon_renew_all.png', 'Renew All Items', 'Renew All items'), 'user/' . $items['uid'] . '/circ/renewall', array(), NULL, NULL, FALSE, TRUE) . '</p>';
   if (!empty($charges)) {
     $header = array('Type', 'Item', 'Due Date', 'Renew');
     $attributes = array('class' => 'charges');
     $output .= theme('table', $header, $charges);
   } else {
-    $output .= check_markup(CIRC_CHARGES_EMPTY);
+    $output .= check_markup(variable_get('circ_charges_empty', ''));
   }
 
   return $output;
@@ -553,17 +513,17 @@ function theme_circ_charges($items) {
 function theme_circ_holds($items) {
  $holds = array();
   foreach ($items['holds'] as $hold) {
-    $due_date = date(CIRC_DATE_FORMAT, strtotime($hold['NOT_NEEDED_AFTER']));
+    $due_date = date(variable_get('circ_date_format', ''), strtotime($hold['NOT_NEEDED_AFTER']));
 
     $icon = _circ_item_type_to_icon($hold['ITEM_TYPE']);
     $item = (empty($hold['AUTHOR'])) ? $hold['TITLE'] : $hold['TITLE'] . ' / ' . $hold['AUTHOR'];
 
     // Available is the exception for holds. Thus, default to unavailable
     if ($hold['STATUS'] == 'available') {
-      $note = CIRC_AVAILABLE_STATUS;
+      $note = variable_get('circ_available_status', '');
       $note .= (!empty($hold['PICKUP_LOCATION'])) ? t('You may pickup the item at the !location. ', array('!location' => $hold['PICKUP_LOCATION'])) : '';
     } else {
-      $note = CIRC_UNAVAILABLE_STATUS;
+      $note = variable_get('circ_unavailable_status', '');
       $note .= (!empty($hold['DUE_DATE'])) ? t('Item is due !due_date. ', array('!due_date' => $due_date)) : '';
       $note .= (!empty($hold['QUEUE_POSITION'])) ? t('Your position to receive this item is #!number. ', array('!number' => $hold['QUEUE_POSITION'])) : '';
     }
@@ -594,14 +554,14 @@ function theme_circ_holds($items) {
     );
   }
 
-  $output .= '<h3>' . check_plain(CIRC_REQUESTS_HEADING) . '</h3>';
-  $output .= check_markup(CIRC_REQUESTS_DESC);
+  $output .= '<h3>' . check_plain(variable_get('circ_requests_heading', '')) . '</h3>';
+  $output .= check_markup(variable_get('circ_requests_desc', ''));
   if (!empty($holds)) {
     $header = array('Type', 'Item', 'Not Needed After');
     $attributes = array('class' => 'holds');
     $output .= theme('table', $header, $holds);
   } else {
-    $output .= check_markup(CIRC_REQUESTS_EMPTY);
+    $output .= check_markup(variable_get('circ_requests_empty', ''));
   }
 
   return $output;
@@ -637,14 +597,14 @@ function theme_circ_fines($items) {
     );
   }
 
-  $output .= '<h3>' . check_plain(CIRC_FINES_HEADING) . '</h3>';
-  $output .= check_markup(CIRC_FINES_DESC);
+  $output .= '<h3>' . check_plain(variable_get('circ_fines_heading', '')) . '</h3>';
+  $output .= check_markup(variable_get('circ_fines_desc', ''));
   if (!empty($fines)) {
     $header = array('Type', 'Item', 'Reason', 'Fine', 'Remaining Balance');
     $attributes = array('class' => 'fines');
     $output .= theme('table', $header, $fines, $attributes);
   } else {
-    $output .= check_markup(CIRC_FINES_EMPTY);
+    $output .= check_markup(variable_get('circ_fines_empty', ''));
   }
 
   return $output;
@@ -652,7 +612,6 @@ function theme_circ_fines($items) {
 
 function circ_account() {
   $user = user_load(array('uid' => arg(1)));
-  $barcode = db_escape_string($user->profile_voyager_username);
   
   $charges = circ_charges($user);
   $output .= theme('circ_charges', $charges);
@@ -664,7 +623,7 @@ function circ_account() {
   $output .= theme('circ_fines', $fines);
 
   $s = '<style>';
-  foreach (array('courtesy' => CIRC_COURTESY_COLOR, 'overdue' => CIRC_OVERDUE_COLOR, 'lost' => CIRC_LOST_COLOR, 'recall' => CIRC_RECALL_COLOR, 'available' => CIRC_AVAILABLE_COLOR, 'unavailable' => CIRC_UNAVAILABLE_COLOR, 'fines' => CIRC_FINES_COLOR) as $key => $value) {
+  foreach (array('courtesy' => variable_get('circ_courtesy_color', '#CCF'), 'overdue' => variable_get('circ_overdue_color', '#FCC'), 'lost' => variable_get('circ_lost_color', '#FCF'), 'recall' => variable_get('circ_recall_color', '#C6C'), 'available' => variable_get('circ_available_color', '#CFC'), 'unavailable' => variable_get('circ_unavailable_color', '#CFC'), 'fines' => variable_get('circ_fines_color', '#FCC')) as $key => $value) {
     if (!empty($value)) {
       $s .= 'table tbody tr.' . $key . ' {' . "\n";
       $s .= 'background-color: ' . $value . ';' . "\n";
@@ -682,7 +641,7 @@ function _circ_item_type_to_icon($item) {
     $item = circ_get_item_type($item);
   } 
   if (empty($item['icon'])) {
-    $item['icon'] = CIRC_DEFAULT_ICON;
+    $item['icon'] = variable_get('circ_default_item_type_icon', '');
   }
   $attributes = array('class' => 'item-type-icon', 'style' => 'max-width:18px; max-height:18px;');
   return theme('image', $item['icon'], $item['display'], $item['display'], $attributes, false);
@@ -714,4 +673,183 @@ function circ_del_item_type($code) {
     $result = db_query("delete from {circ_item_types} where code = '%s';", $code);
   }
   return ($result) ? true : false;
+}
+
+// Begin Item Types
+// Overview Settings
+function circ_itemtypes_overview_form() {
+  $types = circ_get_item_types();
+  foreach ($types as $type) {
+    $rows[] = array(
+      'icon' => _circ_item_type_to_icon($type),
+      'code' => $type['code'],
+      'display' => $type['display'],
+      'configure' => l('configure', 'admin/library/circ/itemtypes/edit/' . $type['code']),
+      'delete' => l('delete', 'admin/library/circ/itemtypes/delete/' . $type['code'] . '/delete'),
+    );
+  }
+
+  $form = array();
+  $form[] = array(
+    '#type' => 'markup',
+    '#value' => theme('table', array('Icon', 'Item Code', 'Item Display', array('data' => 'Operations', 'colspan' => 2)), $rows),
+  );
+
+  return $form;
+}
+function circ_itemtypes_settings_form() {
+  $form = array();
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['icon'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Default Icon'),
+  );
+
+  $thumbnail = variable_get('circ_default_item_type_icon', '');
+  $form['icon'][] = array(
+    '#type' => 'markup',
+    '#value' => (empty($thumbnail)) ? '' : '<div>' . t('Full Size Image') . ':<br>' . theme('image', $thumbnail, 'default icon', 'default icon') . '</div>',
+  );
+  $form['icon'][] = array(
+    '#type' => 'markup',
+    '#value' => (empty($thumbnail)) ? '' : '<div>' . t('36 x 36 Thumbnail') . ':<br>' . theme('image', $thumbnail, 'default icon', 'default icon', array('style' => 'max-width:36px;max-height:36px')) . '</div>',
+  );
+  $form['icon'][] = array(
+    '#type' => 'markup',
+    '#value' => (empty($thumbnail)) ? '' : '<div>' . t('18px x 18px Thumbnail') . ':<br>' . theme('image', $thumbnail, 'default icon', 'default icon', array('style' => 'max-width:18px;max-height:18px')) . '</div>',
+  );
+  $form['icon']['icon_upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Default icon'),
+  );
+  $form['icon']['icon_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default icon path'),
+    '#default_value' => variable_get('circ_default_item_type_icon', ''),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  return $form;
+}
+
+// Settings Validation
+function circ_itemtypes_settings_form_validate($form_id, $form_values) {
+}
+
+// Settings Submit
+function circ_itemtypes_settings_form_submit($form_id, $form_values) {
+  $icon_path = $form_values['icon_path'];
+
+  $dst = file_directory_path();
+  // Check for a new uploaded favicon, and use that instead.
+  if ($file = file_check_upload('icon_upload')) {
+    $parts = pathinfo($file->filename);
+    $filename = 'icon_default.'. $parts['extension'];
+
+    if ($file = file_save_upload('icon_upload', $filename, 1)) {
+      $icon_path = $dst . '/' . $filename;
+    }
+  }
+
+  variable_set('circ_default_item_type_icon', $icon_path);
+  drupal_set_message(t('Default item type icon added/saved.'));
+}
+
+/**
+ * Adds item type
+ */
+function circ_add_item_type_form($item_type = null) {
+  if (!empty($item_type)) {
+    $item_type = circ_get_item_type($item_type);
+  }
+
+  $form = array();
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['item_type'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Item Type Settings'),
+  );
+  $form['item_type']['code'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Item Code'),
+    '#default_value' => $item_type['code'],
+    '#disabled' => (empty($item_type)) ? false : true,
+  );
+  $form['item_type']['display'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Item Display'),
+    '#default_value' => $item_type['display'],
+  );
+
+  $form['icon'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Item Type Icon Settings'),
+  );
+  $form['icon']['icon_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to Custom Icon'),
+    '#default_value' => $item_type['icon'],
+  );
+  $form['icon']['icon_upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Item Icon'),
+  );
+  $form[] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  return $form;
+}
+
+// Add validate
+function circ_add_item_type_form_validate($form_id, $form_values) {
+  // If an icon is uploaded, rename it to icon_[code].[extension].
+  if ($icon = file_check_upload('icon_upload')) {
+    if (preg_match('/(.+)\.([^\.]+)$/', $icon->filename, $match)) {
+      $icon->filename = 'icon_' . $form_values['code'] . '.' . strtolower($match[2]);
+    }
+  }
+}
+
+// Add submit
+function circ_add_item_type_form_submit($form_id, $form_values) {
+  $code = $form_values['code'];
+  $display = $form_values['display'];
+  $icon_path = $form_values['icon_path'];
+
+  $dst = file_directory_path();
+  if ($icon = file_save_upload('icon_upload', $dst, TRUE)) {
+    $icon_path = $icon->filepath;
+  }
+
+  circ_add_item_type($code, $display, $icon_path);
+  drupal_set_message(t('Item type added/saved.'));
+  drupal_goto('admin/library/circ/itemtypes');
+}
+
+/**
+ * Confirms deletion of an item type
+ */
+function circ_item_type_confirm_delete($type) {
+  $form['code'] = array(
+    '#type' => 'hidden',
+    '#value' => $type,
+  );
+  return confirm_form($form,
+                        t('Are you sure you want to delete the item type !type?', array('!type' => $type)),
+                        'admin/library/circ',
+                        NULL,
+                        t('Delete'),
+                        t('Cancel'));
+}
+
+/**
+ * Deletes an item type
+ */
+function circ_item_type_confirm_delete_submit($form_id, $form_values) {
+  circ_del_item_type($form_values['code']);
+  drupal_set_message(t('Item type deleted.'));
+  return 'admin/library/circ/itemtypes';
 }
