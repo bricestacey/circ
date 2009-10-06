@@ -27,17 +27,13 @@ function circ_menu($may_cache) {
       'callback' => 'drupal_get_form',
       'callback arguments' => array('circ_settings_form'),
       'access' => $admin_circ || $admin_library,
-      'type' => MENU_DYNAMIC_ITEM,
       'description' => t('Configure circulation settings and item types.'),
     );
     $items[] = array(
       'path' => 'admin/library/circ/settings',
       'title' => t('Circulation settings'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('circ_settings_form'),
-      'access' => $admin_circ || $admin_library,
       'type' => MENU_DEFAULT_LOCAL_TASK,
-      'weight' => -1,
+      'weight' => -10,
     );
   
     // Item Types
@@ -46,16 +42,12 @@ function circ_menu($may_cache) {
       'title' => t('Item types'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('circ_itemtypes_overview_form'),
-      'access' => $admin_circ || $admin_library,
       'type' => MENU_LOCAL_TASK,
       'weight' => 0,
     );
     $items[] = array(
       'path' => 'admin/library/circ/itemtypes/list',
       'title' => t('List'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('circ_itemtypes_overview_form'),
-      'access' => $admin_circ || $admin_library,
       'type' => MENU_DEFAULT_LOCAL_TASK,
       'weight' => -5,
     );
@@ -64,7 +56,6 @@ function circ_menu($may_cache) {
       'title' => t('Settings'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('circ_itemtypes_settings_form'),
-      'access' => $admin_circ || $admin_library,
       'type' => MENU_LOCAL_TASK,
       'weight' => -4,
     );
@@ -73,7 +64,6 @@ function circ_menu($may_cache) {
       'title' => t('Add item type'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('circ_add_item_type_form'),
-      'access' => $admin_circ || $admin_library,
       'type' => MENU_LOCAL_TASK,
       'weight' => -3,
     );
