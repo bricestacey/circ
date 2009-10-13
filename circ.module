@@ -434,6 +434,7 @@ function circ_fines($user) {
 }
 
 function theme_circ_charges($items) {
+  uasort($items['charges'], '_circ_sort_by_date');
   $charges = array();
   foreach ($items['charges'] as $charge) {
     $due_date = strtotime($charge['DUE_DATE']);
@@ -503,6 +504,7 @@ function theme_circ_charges($items) {
 }
 
 function theme_circ_holds($items) {
+ uasort($items['holds'], '_circ_sort_by_date');
  $holds = array();
   foreach ($items['holds'] as $hold) {
     $due_date = date(variable_get('circ_date_format', ''), strtotime($hold['NOT_NEEDED_AFTER']));
@@ -844,4 +846,14 @@ function circ_item_type_confirm_delete_submit($form_id, $form_values) {
   circ_del_item_type($form_values['code']);
   drupal_set_message(t('Item type deleted.'));
   return 'admin/library/circ/itemtypes';
+}
+
+function _circ_sort_by_date($a, $b) {
+  $adate = strtotime($a['DUE_DATE']);
+  $bdate = strtotime($b['DUE_DATE']);
+
+  if ($adate == $bdate) {
+    return 0;
+  }
+  return ($adate < $bdate) ? -1 : 1;
 }
