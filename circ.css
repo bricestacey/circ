@@ -8,9 +8,11 @@ table thead tr th {
 }
 
 /* this makes zebra stripes */
+/*
 table tbody tr.even {
   background-color: #FFF;
 }
+*/
 
 table thead tr th {
   text-align: left;
