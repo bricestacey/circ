@@ -1,8 +1,8 @@
 /* $Id$ */
 
 table {
-  width: 95%;
   border: 1px solid #CCC;
+  width: 95%;
 }
 table tbody tr td,
 table thead tr th {
