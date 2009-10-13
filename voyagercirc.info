@@ -1,5 +1,0 @@
-; $Id$
-name = Voyager Circulation
-description = "Integrates Voyager ILS into the Circulation Module."
-package = Voyager
-dependencies = circ voyager

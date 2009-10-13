@@ -1,5 +1,0 @@
-; $Id$
-name = Circulation Demo Driver
-description = "Demo driver of dummy data for the Circulation Module."
-package = Library
-dependencies = circ
