@@ -199,9 +199,9 @@ function _voyagercirc_sip_connect($sip) {
   $fields = array(
     'UIDAlgorithm' => '0',
     'PWDAlgorithm' => '0',
-    'CN' => 'Selfchk',
-    'CO' => 'newdrug',
-    'CP' => 'SELF',
+    'CN' => 'username',
+    'CO' => 'password',
+    'CP' => 'location',
   );
   if ($msg = SIPClient::msg93($fields)) {
     $sip->send($msg);
