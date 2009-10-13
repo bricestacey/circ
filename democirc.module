@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 function democirc_circ_holds($user) {
   $items = array();
   $items[] = array(

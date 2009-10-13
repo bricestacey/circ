@@ -1,5 +1,5 @@
 <?php
-// circ.install
+// $Id$
 
 function circ_install() {
   switch ($GLOBALS['db_type']) {

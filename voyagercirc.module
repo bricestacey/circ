@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 function voyagercirc_menu() {
   $admin_access = user_access('administer circ');
 

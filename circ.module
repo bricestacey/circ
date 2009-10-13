@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 function circ_init() {
   drupal_add_css(drupal_get_path('module', 'circ') . '/circ.css');
 }
