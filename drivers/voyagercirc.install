@@ -1,0 +1,18 @@
+<?php
+// $Id$
+
+function voyagercirc_install() {
+  variable_set('voyagercirc_sip_username', '');
+  variable_set('voyagercirc_sip_password', '');
+  variable_set('voyagercirc_sip_location', '');
+  variable_set('voyagercirc_sip_host', '');
+  variable_set('voyagercirc_sip_port', '');
+}
+
+function voyagercirc_uninstall() {
+  variable_del('voyagercirc_sip_username');
+  variable_del('voyagercirc_sip_password');
+  variable_del('voyagercirc_sip_location');
+  variable_del('voyagercirc_sip_host');
+  variable_del('voyagercirc_sip_port');
+}

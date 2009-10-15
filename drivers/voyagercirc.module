@@ -195,65 +195,57 @@ function voyagercirc_import_item_types() {
 /**
  * Begin SIP Procedures
  */ 
-function _voyagercirc_sip_connect($sip) {
+function _voyagercirc_sip_connect($socket) {
+  $username = variable_get('voyagercirc_sip_username', '');
+  $password = variable_get('voyagercirc_sip_password', '');
+  $location = variable_get('voyagercirc_sip_location', '');
+
   $fields = array(
     'UIDAlgorithm' => '0',
     'PWDAlgorithm' => '0',
-    'CN' => 'Selfchk',
-    'CO' => 'newdrug',
-    'CP' => 'SELF',
+    'CN' => $username,
+    'CO' => $password,
+    'CP' => $location,
   );
-  if ($msg = SIPClient::msg93($fields)) {
-    $sip->send($msg);
-    $response = $sip->recv();
-    $parse = $sip->parse($response);
-    if ($parse['Ok'] == 0) {
-      return false;
-    }
-    return true;
-  } else {
-    return false;
+  if (($msg = sipapi_msg93($fields)) != FALSE
+    && ($response = sipapi_send_message($socket, $msg)) != FALSE
+    && $response['parse']['Ok'] == 1) {
+
+    return TRUE;
   }
+  return FALSE;
 }
 
-function _voyagercirc_sip_status($sip, $barcode) {
+function _voyagercirc_sip_status($socket, $barcode) {
   $fields = array(
-    'Language' => '001',
-    'Summary' => '',
-    'AO' => 'drupalcirc',
-    'AA' => $barcode,
-  );
-  if ($msg = SIPClient::msg63($fields)) {
-    $sip->send($msg);
-    $response = $sip->recv();
-    $parse = $sip->parse($response);
-    if ($parse['PatronStatus']['RenewalPrivilegesDenied'] == 'Y') {
-      return false;
-    }
+      'Language' => '001',
+      'Summary' => '',
+      'AO' => 'drupalcirc',
+      'AA' => $barcode,
+      );
+  if (($msg = sipapi_msg63($fields)) != FALSE
+      && ($response = sipapi_send_message($socket, $msg)) != FALSE
+      && $response['parse']['PatronStatus']['RenewalPrivilegesDenied'] == 'N') {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+function _voyagercirc_sip_renew($socket, $patron, $item) {
+  $fields = array(
+      'ThirdPartyAllowed' => 'N',
+      'NoBlock' => 'N',
+      'NBDueDate' => date('Ymd    His', strtotime('Oct 28, 2009')),
+      'AO' => 'drupalcirc',
+      'AA' => $patron,
+      'AB' => $item,
+      );
+  if (($msg = sipapi_msg29($fields)) != FALSE
+      && ($response = sipapi_send_message($socket, $msg)) != FALSE
+      && $response['parse']['Ok'] == 1) {
     return true;
   } else {
     return false;
-  }
-}
-
-function _voyagercirc_sip_renew($sip, $patron, $item) {
- $fields = array(
-    'ThirdPartyAllowed' => 'N',
-    'NoBlock' => 'N',
-    'NBDueDate' => date('Ymd    His', strtotime('Oct 28, 2009')),
-    'AO' => 'drupalcirc',
-    'AA' => $patron,
-    'AB' => $item,
-  );
-  if ($msg = SIPClient::msg29($fields)) {
-    $sip->send($msg);
-    $response = $sip->recv();
-    $parse = $sip->parse($response);
-    if ($parse['Ok'] == '1') {
-      return true;
-    } else {
-      return false;
-    }
   }
 }
 
@@ -284,7 +276,7 @@ function voyagercirc_renew_all($uid) {
       if (!empty($itemBarcode) && _voyagercirc_sip_renew($sip, $patron->profile_voyager_username, $itemBarcode)) {
         $parse = $sip->parse($sip->lastRecvMsg);
         $due = mktime(0, 0, 0, substr($parse['AH'], 4, 2), substr($parse['AH'], 6, 2), substr($parse['AH'], 0, 4));
-        drupal_set_message($item['TITLE'] . ' was renewed. It is now due ' . date(CIRC_DATE_FORMAT, strtotime($parse['AH'])));
+        drupal_set_message($item['TITLE'] . ' was renewed. It is now due ' . date(variable_get('circ_date_format', ''), strtotime($parse['AH'])));
       } else {
         drupal_set_message($item['TITLE'] . ' could not be renewed.');
       }
@@ -297,18 +289,20 @@ function voyagercirc_renew_all($uid) {
 
 function voyagercirc_renew($uid, $item) {
   $patron = user_load(array('uid' => $uid));
-  $sip = SIPClient::connect('voyager.lib.umb.edu', '7031');
-  $sip->verbose = false;
-  
-  if (_voyagercirc_sip_connect($sip) && 
-      _voyagercirc_sip_status($sip, $patron->profile_voyager_username) &&
-      _voyagercirc_sip_renew($sip, $patron->profile_voyager_username, $item)) 
-     {
-    $parse = $sip->parse($sip->lastRecvMsg);
-    $due = mktime(0, 0, 0, substr($parse['AH'], 4, 2), substr($parse['AH'], 6, 2), substr($parse['AH'], 0, 4));
-    drupal_set_message($parse['AJ'] . ' was renewed. It is now due ' . date(CIRC_DATE_FORMAT, strtotime($parse['AH'])));
+  $host = variable_get('voyagercirc_sip_host', '');
+  $port = variable_get('voyagercirc_sip_port', '');
+
+  if (($socket = sipapi_connect($host, $port))
+      && _voyagercirc_sip_connect($socket) 
+      && _voyagercirc_sip_status($socket, $patron->profile_voyager_username) 
+      && _voyagercirc_sip_renew($socket, $patron->profile_voyager_username, $item)) 
+  {
+    $response = sipapi_get_last_message();
+    $due = mktime(0, 0, 0, substr($response['parse']['AH'], 4, 2), substr($response['parse']['AH'], 6, 2), substr($response['parse']['AH'], 0, 4));
+    drupal_set_message($response['parse']['AJ'] . ' was renewed. It is now due ' . date(variable_get('circ_date_format', ''), strtotime($response['parse']['AH'])));
     drupal_goto('user/' . $uid . '/circ');
   } else {
+    var_dump(sipapi_get_last_message());
     return _sip_error($uid);
   }
 }
